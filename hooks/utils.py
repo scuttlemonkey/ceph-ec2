@@ -159,7 +159,28 @@ def config_get(attribute):
 
 
 def get_unit_hostname():
-    return socket.gethostname()
+    #return socket.gethostname()
+    import pycurl
+    import cStringIO
+
+    buf = cStringIO.StringIO()
+
+    c.pycurl.Curl()
+    c.setopt(c.URL, 'http://169.254.169.254/latest/meta-data/hostname')
+    c.setopt(c.CONNECTTIMEOUT, 5)
+    c.setopt(c.TIMEOUT, 8)
+    c.setopt(c.COOKIEFILE, '')
+    c.setopt(c.FAILONERROR, True)
+    c.setopt(c.WRITEFUNCTION, buf.write)
+
+    try:
+        c.perform()
+	
+    except pycurl.error, error:
+        errno, errstr = error
+	print 'ERROR: ', errstr
+	
+    return buf.getvalue()
 
 
 def get_host_ip(hostname=unit_get('private-address')):
